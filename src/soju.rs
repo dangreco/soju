@@ -1,38 +1,28 @@
-use wasm_bindgen::{prelude::*, JsCast};
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
+use wasm_bindgen::Clamped;
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageData};
 
-#[wasm_bindgen]
-pub struct Soju {
-  ctx: CanvasRenderingContext2d, 
-  width: u32,
-  height: u32,
-}
-
-#[wasm_bindgen]
-impl Soju {
+pub trait Soju {
   
-  #[wasm_bindgen(constructor)]
-  pub fn new(
-    canvas: HtmlCanvasElement,
-  ) -> Soju
-  {
-    let ctx = canvas
-      .get_context("2d")
-      .unwrap()
-      .unwrap()
-      .dyn_into::<web_sys::CanvasRenderingContext2d>()
-      .unwrap();
-
-    let width = canvas.width();
-    let height = canvas.height();
-
-    Soju { ctx, width, height }
-  }
-
-  #[wasm_bindgen]
-  pub fn render(&mut self)
-  {
+  fn new(canvas: HtmlCanvasElement) -> Self;
   
+  fn get_ctx(&self) -> CanvasRenderingContext2d;
+  
+  fn get_size(&self) -> (u32, u32);
+
+  fn render_frame(&self, buffer: &Vec<u8>);
+
+  fn render(&self)
+  {
+    let ctx = self.get_ctx();
+    let (width, height) = self.get_size();
+
+    let pixels = (width * height) as usize;
+    let buffer: Vec<u8> = vec![0; pixels * 4];
+    
+    self.render_frame(&buffer);
+
+    let data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&buffer), width, height).unwrap();
+    ctx.put_image_data(&data, 0., 0.).unwrap();
   }
 
 }
