@@ -9,7 +9,7 @@ pub trait Soju {
   
   fn get_size(&self) -> (u32, u32);
 
-  fn render_frame(&self, buffer: &Vec<u8>);
+  fn render_frame(&self, buffer: &mut Vec<u8>);
 
   fn render(&self)
   {
@@ -17,9 +17,9 @@ pub trait Soju {
     let (width, height) = self.get_size();
 
     let pixels = (width * height) as usize;
-    let buffer: Vec<u8> = vec![0; pixels * 4];
+    let mut buffer: Vec<u8> = vec![0; pixels * 4];
     
-    self.render_frame(&buffer);
+    self.render_frame(&mut buffer);
 
     let data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&buffer), width, height).unwrap();
     ctx.put_image_data(&data, 0., 0.).unwrap();

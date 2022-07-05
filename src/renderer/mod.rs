@@ -1,1 +1,2 @@
-pub mod renderer;
+pub mod xy;
+pub mod tile;
